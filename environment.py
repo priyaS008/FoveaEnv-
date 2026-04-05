@@ -1,12 +1,19 @@
-# environment.py
-# BlinkEnv - Core Environment Logic
-# Agent sees only a 3x3 window in a 7x7 grid
-# Must find target object using minimum steps
-
+import importlib
 import uuid
 import random
-from typing import List, Tuple
-from openenv.core.env_server import Environment
+from typing import List
+
+class Environment:
+    """Fallback stub Environment when openenv is not installed."""
+    def __init__(self):
+        pass
+
+try:
+    _openenv = importlib.import_module("openenv.core.env_server")
+    Environment = _openenv.Environment
+except ImportError:
+    pass
+
 from models import GazeAction, GridObservation, BlinkState
 
 # --- Constants ---
@@ -165,7 +172,7 @@ class BlinkEnvironment(Environment):
     # ------------------------------------------------------------------ #
     def _get_visible_cells(self) -> List[str]:
         """Return cells visible in the 3x3 focus window."""
-        cells = []
+        cells: List[str] = []
         gx, gy = self._state.gaze_x, self._state.gaze_y
         for r in range(gx - VISION_RADIUS, gx + VISION_RADIUS + 1):
             for c in range(gy - VISION_RADIUS, gy + VISION_RADIUS + 1):
@@ -187,7 +194,7 @@ class BlinkEnvironment(Environment):
             message=message
         )
 
-    def get_metadata(self):
+    def get_metadata(self) -> dict[str, object]:
         return {
             "name": "BlinkEnv",
             "version": "1.0.0",
